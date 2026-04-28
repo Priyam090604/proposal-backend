@@ -13,14 +13,23 @@ const app = express();
 
 app.use(helmet());
 
-app.use(cors({
-  origin: [
-    "https://proposal-frontend-theta.vercel.app",
-    "http://localhost:5173"
-  ],
-  credentials: true
-}));;
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://proposal-frontend-psi.vercel.app',
+  'https://proposal-frontend-theta.vercel.app',
+  'http://localhost:5173'
+];
 
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS blocked'));
+    }
+  },
+  credentials: true
+}));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200
